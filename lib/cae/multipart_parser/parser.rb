@@ -31,8 +31,9 @@ module Cae
       #
       # @return [Integer] the number of bytes parsed.
       def parse(io)
-        buffer = String.new
+        parsed = 0
 
+        buffer = String.new
         while io.read(@read_buffer_size, buffer)
           length = buffer.length
           i = 0
@@ -152,7 +153,11 @@ module Cae
             raise "unexpected char at #{i} (#{buffer[i].inspect})"
           end
 
+          parsed += length
+
         end # while
+
+        parsed
       end
 
     end

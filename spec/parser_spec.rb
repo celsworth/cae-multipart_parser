@@ -9,9 +9,20 @@ describe Cae::MultipartParser::Parser do
     Cae::MultipartParser::Parser.new(boundary: boundary)
   end
 
+  it "returns the number of bytes parsed" do
+    part = SecureRandom.random_bytes(1024) # random data
+    body = generate_body(boundary, [part])
+    fh = StringIO.new body
+
+    r = parser.parse fh do |part|
+    end
+
+    r.must_equal body.length
+  end
+
   it "calls the :headers callback with a hash" do
-    body = SecureRandom.random_bytes(1024) # random data
-    fh = StringIO.new generate_body(boundary, [body])
+    part = SecureRandom.random_bytes(1024) # random data
+    fh = StringIO.new generate_body(boundary, [part])
 
     headers = nil
     parser.parse fh do |part|
@@ -21,19 +32,19 @@ describe Cae::MultipartParser::Parser do
   end
 
   it "calls the :data callback with the original data" do
-    body = SecureRandom.random_bytes(1024 * 1024) # 1MB of random data
-    fh = StringIO.new generate_body(boundary, [body])
+    part = SecureRandom.random_bytes(1024 * 1024) # 1MB of random data
+    fh = StringIO.new generate_body(boundary, [part])
     ret = ''
     parser.parse fh do |part|
       part.on(:data){|data| ret << data }
     end
 
-    ret.must_equal body
+    ret.must_equal part
   end
 
   it "calls the :end callback after the part is done" do
-    body = SecureRandom.random_bytes(1024) # random data
-    fh = StringIO.new generate_body(boundary, [body])
+    part = SecureRandom.random_bytes(1024) # random data
+    fh = StringIO.new generate_body(boundary, [part])
     done = 0
     parser.parse fh do |part|
       part.on(:end){ done += 1 }
@@ -43,8 +54,8 @@ describe Cae::MultipartParser::Parser do
   end
 
   it "calls callbacks after each part is done" do
-    body = SecureRandom.random_bytes(1024) # random data
-    fh = StringIO.new generate_body(boundary, [body, body])
+    part = SecureRandom.random_bytes(1024) # random data
+    fh = StringIO.new generate_body(boundary, [part, part])
     headers, done = 0, 0
     parser.parse fh do |part|
       part.on(:headers){ headers += 1 }
