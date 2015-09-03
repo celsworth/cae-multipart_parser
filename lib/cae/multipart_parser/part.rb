@@ -17,6 +17,10 @@ module Cae
         # split header string into a hash
         str.split(/\r\n/).each do |h|
           key, value = h.split ':'
+
+          # normalize content-length -> Content-Length
+          key = key.split('-').map(&:capitalize).join('-')
+
           @headers[key] = value.lstrip
         end
         @headers
