@@ -18,5 +18,6 @@ Gem::Specification.new do |spec|
 	spec.require_paths = ["lib"]
 
 	spec.add_development_dependency "reek"
-	spec.add_development_dependency "minitest", ">= 5.7.0"
+	spec.add_development_dependency "multipart-post"
+	spec.add_development_dependency "minitest"
 end

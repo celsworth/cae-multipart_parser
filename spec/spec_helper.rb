@@ -7,9 +7,11 @@ require "rubygems"
 gem 'minitest'
 require "minitest/autorun"
 
-require 'securerandom'
-
 require 'cae/multipart_parser'
+
+require 'securerandom'
+require 'net/http/post/multipart'
+
 
 # create a mock boundary
 def generate_boundary
@@ -18,16 +20,12 @@ end
 
 # create a multipart body out of the given array
 def generate_body(boundary, arr)
-
-  str = ''
-  arr.each do |p|
-    str << "--" + boundary + "\r\n"
-    str << "Content-Length: #{p.length}\r\n"
-    str << "\r\n"
-    str << p
-    str << "\r\n"
+  parts = {}
+  arr.each_with_index do |part, idx|
+    fileno = "file#{idx}"
+    parts[fileno] = UploadIO.new(StringIO.new(part), fileno, 'application/binary')
   end
 
-  str << "--" + boundary + "--\r\n"
-
+  req = Net::HTTP::Post::Multipart.new '/', parts, {}, boundary
+  req.body_stream.read
 end
