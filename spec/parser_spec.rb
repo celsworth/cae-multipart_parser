@@ -2,67 +2,72 @@
 
 require File.expand_path("spec_helper", File.dirname(__FILE__))
 
-boundary = generate_boundary
-
 describe Cae::MultipartParser::Parser do
+  let(:boundary) do
+    # create a random boundary
+    ("-" * 24) + SecureRandom.random_bytes(8).unpack('H*').first
+  end
+
   let(:parser) do
     Cae::MultipartParser::Parser.new(boundary: boundary)
   end
 
-  it "returns the number of bytes parsed" do
-    part = SecureRandom.random_bytes(1024) # random data
-    body = generate_body(boundary, [part])
-    fh = StringIO.new body
+  describe "#parse" do
+    it "returns the number of bytes parsed" do
+      part = SecureRandom.random_bytes(1024) # random data
+      body = generate_body(boundary, [part])
+      fh = StringIO.new body
 
-    r = parser.parse fh do |part|
+      r = parser.parse fh do |part|
+      end
+
+      r.must_equal body.length
     end
 
-    r.must_equal body.length
-  end
+    it "calls the :headers callback with a hash" do
+      part = SecureRandom.random_bytes(1024) # random data
+      fh = StringIO.new generate_body(boundary, [part])
 
-  it "calls the :headers callback with a hash" do
-    part = SecureRandom.random_bytes(1024) # random data
-    fh = StringIO.new generate_body(boundary, [part])
-
-    headers = nil
-    parser.parse fh do |part|
-      part.on(:headers){|h| headers = h }
-    end
-    headers.must_be_kind_of Hash
-  end
-
-  it "calls the :data callback with the original data" do
-    part = SecureRandom.random_bytes(1024 * 1024) # 1MB of random data
-    fh = StringIO.new generate_body(boundary, [part])
-    ret = ''
-    parser.parse fh do |part|
-      part.on(:data){|data| ret << data }
+      headers = nil
+      parser.parse fh do |part|
+        part.on(:headers){|h| headers = h }
+      end
+      headers.must_be_kind_of Hash
     end
 
-    ret.must_equal part
-  end
+    it "calls the :data callback with the original data" do
+      part = SecureRandom.random_bytes(1024 * 1024) # 1MB of random data
+      fh = StringIO.new generate_body(boundary, [part])
+      ret = ''
+      parser.parse fh do |part|
+        part.on(:data){|data| ret << data }
+      end
 
-  it "calls the :end callback after the part is done" do
-    part = SecureRandom.random_bytes(1024) # random data
-    fh = StringIO.new generate_body(boundary, [part])
-    done = 0
-    parser.parse fh do |part|
-      part.on(:end){ done += 1 }
+      ret.must_equal part
     end
 
-    done.must_equal 1
-  end
+    it "calls the :end callback after the part is done" do
+      part = SecureRandom.random_bytes(1024) # random data
+      fh = StringIO.new generate_body(boundary, [part])
+      done = 0
+      parser.parse fh do |part|
+        part.on(:end){ done += 1 }
+      end
 
-  it "calls callbacks after each part is done" do
-    part = SecureRandom.random_bytes(1024) # random data
-    fh = StringIO.new generate_body(boundary, [part, part])
-    headers, done = 0, 0
-    parser.parse fh do |part|
-      part.on(:headers){ headers += 1 }
-      part.on(:end){ done += 1 }
+      done.must_equal 1
     end
 
-    headers.must_equal 2
-    done.must_equal 2
+    it "calls callbacks after each part is done" do
+      part = SecureRandom.random_bytes(1024) # random data
+      fh = StringIO.new generate_body(boundary, [part, part])
+      headers, done = 0, 0
+      parser.parse fh do |part|
+        part.on(:headers){ headers += 1 }
+        part.on(:end){ done += 1 }
+      end
+
+      headers.must_equal 2
+      done.must_equal 2
+    end
   end
 end

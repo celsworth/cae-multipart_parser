@@ -12,12 +12,6 @@ require 'cae/multipart_parser'
 require 'securerandom'
 require 'net/http/post/multipart'
 
-
-# create a mock boundary
-def generate_boundary
-  ("-" * 24) + SecureRandom.random_bytes(8).unpack('H*').first
-end
-
 # create a multipart body out of the given array
 def generate_body(boundary, arr)
   parts = {}
