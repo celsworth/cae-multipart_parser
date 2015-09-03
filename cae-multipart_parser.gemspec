@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
 	spec.version       = Cae::MultipartParser::VERSION
 	spec.authors       = ["Chris Elsworth"]
 	spec.email         = ["chris@shagged.org"]
-	spec.summary       = ""
-	spec.homepage      = ""
+	spec.summary       = "Event-driven HTTP Multipart parser"
+	spec.homepage      = "https://github.com/celsworth/cae-multipart_parser"
 	spec.license       = "MIT"
 
 	spec.files         = `git ls-files -z`.split("\x0")
@@ -17,7 +17,6 @@ Gem::Specification.new do |spec|
 	spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
 	spec.require_paths = ["lib"]
 
-	spec.add_development_dependency "reek"
 	spec.add_development_dependency "multipart-post"
 	spec.add_development_dependency "minitest"
 end
