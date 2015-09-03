@@ -10,13 +10,11 @@ module Cae
 
       BOUNDARY_PREFIX = (CR + LF + DASH + DASH).freeze
 
-      BoundaryUnsetError = Class.new(StandardError)
-
       ContentLengthUnsetError = Class.new(StandardError)
 
       attr_accessor :read_buffer_size
 
-      def initialize
+      def initialize(opts = {})
         # remember offsets into our state in between calls
         @index = 0
 
@@ -24,10 +22,8 @@ module Cae
 
         # default 2MB read buffer
         @read_buffer_size = 2 * 1024 * 1024
-      end
 
-      def boundary=(boundary)
-        @boundary = BOUNDARY_PREFIX + boundary
+        @boundary = BOUNDARY_PREFIX + opts[:boundary]
         @boundary_length = @boundary.length
       end
 
@@ -35,8 +31,6 @@ module Cae
       #
       # @return [Integer] the number of bytes parsed.
       def parse(io)
-        raise BoundaryUnsetError if @boundary.nil?
-
         buffer = String.new
 
         while io.read(@read_buffer_size, buffer)

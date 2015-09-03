@@ -6,15 +6,7 @@ boundary = generate_boundary
 
 describe Cae::MultipartParser::Parser do
   let(:parser) do
-    Cae::MultipartParser::Parser.new.tap do |parser|
-      parser.boundary = boundary
-    end
-  end
-
-  it "raises BoundaryUnsetError when appropriate" do
-    assert_raises Cae::MultipartParser::Parser::BoundaryUnsetError do
-      Cae::MultipartParser::Parser.new.parse(StringIO.new){}
-    end
+    Cae::MultipartParser::Parser.new(boundary: boundary)
   end
 
   it "calls the :headers callback with a hash" do
