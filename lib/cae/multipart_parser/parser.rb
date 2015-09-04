@@ -39,12 +39,8 @@ module Cae
           i = 0
           data_start = 0
 
-          #p "parsing #{length} chars: #{buffer}"
-
           while i < length
             c = buffer[i]
-
-            #p "state=#{@state}: i=#{i}. index=#{@index}, d_start=#{data_start} chars=#{buffer[i, 50]}"
 
             case @state
             when :start
