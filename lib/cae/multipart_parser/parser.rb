@@ -12,6 +12,8 @@ module Cae
 
       ContentLengthUnsetError = Class.new(StandardError)
 
+      ParseError = Class.new(StandardError)
+
       attr_accessor :read_buffer_size
 
       def initialize(opts = {})
@@ -146,7 +148,7 @@ module Cae
           end # while
 
           if i != length
-            raise "unexpected char at #{i} (#{buffer[i].inspect})"
+            raise ParseError, "unexpected char at char #{parsed+i} (#{c.inspect})"
           end
 
           parsed += length
