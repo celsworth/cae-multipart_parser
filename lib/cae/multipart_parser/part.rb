@@ -18,8 +18,9 @@ module Cae
         str.split(/\r\n/).each do |h|
           key, value = h.split ':'
 
-          # normalize content-length -> Content-Length
-          key = key.split('-').map(&:capitalize).join('-')
+          # normalize content-length -> CONTENT_LENGTH
+          key.upcase!
+          key.tr! '-', '_'
 
           @headers[key] = value.lstrip
         end
@@ -27,7 +28,7 @@ module Cae
       end
 
       def content_length
-        @headers['Content-Length'].to_i
+        @headers['CONTENT_LENGTH'].to_i
       end
 
       def on(event, &callback)

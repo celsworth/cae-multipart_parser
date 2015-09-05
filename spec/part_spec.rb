@@ -9,37 +9,37 @@ describe Cae::MultipartParser::Part do
     it "parses a simple input" do
       input = "Content-Type: text/html"
       part.parse_header_str(input).must_equal({
-        'Content-Type' => 'text/html'
+        'CONTENT_TYPE' => 'text/html'
       })
     end
 
     it "ignores trailing CRLF" do
       input = "Content-Type: text/html\r\n"
       part.parse_header_str(input).must_equal({
-        'Content-Type' => 'text/html'
+        'CONTENT_TYPE' => 'text/html'
       })
     end
 
     it "parses multiple lines" do
       input = "Content-Type: text/html\r\nContent-Length: 100"
       part.parse_header_str(input).must_equal({
-        'Content-Type' => 'text/html',
-        'Content-Length' => '100'
+        'CONTENT_TYPE' => 'text/html',
+        'CONTENT_LENGTH' => '100'
       })
     end
 
     it "parses multiline headers" do
       input = "Content-Type: multipart/form-data;\r\n\tboundary=foo"
       part.parse_header_str(input).must_equal({
-        'Content-Type' => 'multipart/form-data; boundary=foo'
+        'CONTENT_TYPE' => 'multipart/form-data; boundary=foo'
       })
     end
 
     it "parses multiple multiline headers" do
       input = "Content-Type: multipart/form-data;\r\n\tboundary=foo\r\nContent-Type2: multipart/form-data;\r\n\tboundary=bar"
       part.parse_header_str(input).must_equal({
-        'Content-Type' => 'multipart/form-data; boundary=foo',
-        'Content-Type2' => 'multipart/form-data; boundary=bar'
+        'CONTENT_TYPE' => 'multipart/form-data; boundary=foo',
+        'CONTENT_TYPE2' => 'multipart/form-data; boundary=bar'
       })
     end
   end
