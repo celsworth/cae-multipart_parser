@@ -40,9 +40,7 @@ describe Cae::MultipartParser::Parser do
       part = SecureRandom.random_bytes(1024) # random data
       fh = StringIO.new generate_body(boundary, [part])
 
-      headers = nil
-      parser.parse(fh){|part| headers = part.headers }
-      headers.must_be_kind_of Hash
+      parser.parse(fh){|part| part.headers.must_be_kind_of Hash }
     end
 
     it "passes the original data to the part#body handle" do
@@ -55,7 +53,6 @@ describe Cae::MultipartParser::Parser do
           ret << x
         end
       end
-
       ret.must_equal part
     end
 
