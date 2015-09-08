@@ -23,3 +23,11 @@ def generate_body(boundary, arr)
   req = Net::HTTP::Post::Multipart.new '/', parts, {}, boundary
   req.body_stream.read
 end
+
+
+def refute_changes(what)
+  old = what.call
+  yield
+  assert_equal old, what.call
+end
+

@@ -88,29 +88,17 @@ module Cae
               # this must populate #content_length
               @part.parse_header_str @headers
 
-              @part_data_remaining = @part.content_length
-              raise ContentLengthUnsetError if @part_data_remaining == 0
+              raise ContentLengthUnsetError if @part.content_length == 0
 
-              # allow caller to setup callbacks
+              chunk_remaining = length - data_start
+              cb_len = @part.content_length > chunk_remaining ? chunk_remaining : @part.content_length
+              @part.body = Part::Body.new(io, @part.content_length, buffer[i, cb_len])
               yield @part
 
-              @part.callback :headers, @part.headers
-
-              data_start = i
-              @index = 0
-              @state = :part_data
-              next # keep i pointing at current char for :part_data
-
-            when :part_data
-              chunk_remaining = length - data_start
-              cb_len = @part_data_remaining > chunk_remaining ? chunk_remaining : @part_data_remaining
-
-              @part.callback :data, buffer[data_start, cb_len]
-
-              @part_data_remaining -= cb_len
               i += cb_len
 
-              @state = :boundary if @part_data_remaining == 0
+              @index = 0
+              @state = :boundary
               next # we've bumped i already, don't increment it
 
             when :boundary

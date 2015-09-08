@@ -18,56 +18,40 @@ describe Cae::MultipartParser::Parser do
       body = generate_body(boundary, [part])
       fh = StringIO.new body
 
-      r = parser.parse fh do |part|
-      end
-
+      r = parser.parse(fh){ }
       r.must_equal body.length
     end
 
-    it "calls the :headers callback with a hash" do
+    it "sets part#headers" do
       part = SecureRandom.random_bytes(1024) # random data
       fh = StringIO.new generate_body(boundary, [part])
 
       headers = nil
-      parser.parse fh do |part|
-        part.on(:headers){|h| headers = h }
-      end
+      parser.parse(fh){|part| headers = part.headers }
       headers.must_be_kind_of Hash
     end
 
-    it "calls the :data callback with the original data" do
+    it "passes the original data to the part#body handle" do
       part = SecureRandom.random_bytes(1024 * 1024) # 1MB of random data
       fh = StringIO.new generate_body(boundary, [part])
       ret = ''
       parser.parse fh do |part|
-        part.on(:data){|data| ret << data }
+        part.body.must_be_kind_of Cae::MultipartParser::Part::Body
+        while x = part.body.read(1024)
+          ret << x
+        end
       end
 
       ret.must_equal part
     end
 
-    it "calls the :end callback after the part is done" do
+    it "yields for each part" do
       part = SecureRandom.random_bytes(1024) # random data
-      fh = StringIO.new generate_body(boundary, [part])
+      parts = [part, part]
+      fh = StringIO.new generate_body(boundary, parts)
       done = 0
-      parser.parse fh do |part|
-        part.on(:end){ done += 1 }
-      end
-
-      done.must_equal 1
-    end
-
-    it "calls callbacks after each part is done" do
-      part = SecureRandom.random_bytes(1024) # random data
-      fh = StringIO.new generate_body(boundary, [part, part])
-      headers, done = 0, 0
-      parser.parse fh do |part|
-        part.on(:headers){ headers += 1 }
-        part.on(:end){ done += 1 }
-      end
-
-      headers.must_equal 2
-      done.must_equal 2
+      parser.parse(fh){|part| done += 1 }
+      done.must_equal parts.count
     end
   end
 end
