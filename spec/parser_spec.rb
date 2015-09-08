@@ -13,6 +13,20 @@ describe Cae::MultipartParser::Parser do
   end
 
   describe "#parse" do
+    it "raises ContentLengthUnsetError on missing Content-Length" do
+      part = SecureRandom.random_bytes(1024) # random data
+      body = generate_body(boundary, [part])
+      fh = StringIO.new body.sub('Content-Length', 'Not-Content-Length')
+      proc{ parser.parse(fh){ } }.must_raise Cae::MultipartParser::Parser::ContentLengthUnsetError
+    end
+
+    it "raises ParseError on a partial message" do
+      part = SecureRandom.random_bytes(1024) # random data
+      body = generate_body(boundary, [part])
+      fh = StringIO.new body[0, 500]
+      proc{ parser.parse(fh){ } }.must_raise Cae::MultipartParser::Parser::ParseError
+    end
+
     it "returns the number of bytes parsed" do
       part = SecureRandom.random_bytes(1024) # random data
       body = generate_body(boundary, [part])

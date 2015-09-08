@@ -40,7 +40,7 @@ module Cae
             return outbuf
           end
 
-          @fh.read(length, outbuf).tap{|o| @read_limit -= o.length }
+          @fh.read(length, outbuf).tap {|o| @read_limit -= o.length if o }
         end
 
       end

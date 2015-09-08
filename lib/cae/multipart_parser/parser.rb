@@ -143,6 +143,10 @@ module Cae
 
         end # while
 
+        if @state != :end
+          raise ParseError, "end of multipart message not found"
+        end
+
         parsed
       end
 
