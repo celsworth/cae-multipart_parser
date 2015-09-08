@@ -10,7 +10,6 @@ module Cae
       attr_accessor :body
 
       def initialize
-        @callbacks = {}
         @headers = {}
         @body = nil
       end
@@ -34,16 +33,6 @@ module Cae
       def content_length
         @headers['CONTENT_LENGTH'].to_i
       end
-
-      def on(event, &callback)
-        @callbacks[event] = callback
-      end
-
-      # Parser will call :headers, :data, :end
-      def callback(event, arg = nil)
-        @callbacks[event].call(arg) if @callbacks.has_key?(event)
-      end
-
     end
   end
 end

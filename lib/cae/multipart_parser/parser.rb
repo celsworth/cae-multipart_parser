@@ -29,7 +29,7 @@ module Cae
         @boundary_length = @boundary.length
       end
 
-      # Parse data from the IO +io+, calling callbacks appropriately.
+      # Parse data from the IO +io+
       #
       # @return [Integer] the number of bytes parsed.
       def parse(io)
@@ -43,6 +43,8 @@ module Cae
 
           while i < length
             c = buffer[i]
+
+            #p "state=#{@state} index=#{@index} chars=#{buffer[i, 40]}"
 
             case @state
             when :start
@@ -120,13 +122,11 @@ module Cae
             when :boundary_part_almost_done
               # final character of an inter-part boundary must be LF
               break unless c == LF # unexpected character
-              @part.callback :end
               @state = :headers_start
 
             when :boundary_last_almost_done
               # final character of final boundary must be -
               break unless c == DASH # unexpected character
-              @part.callback :end
               @state = :end
 
             end # case
