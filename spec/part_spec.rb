@@ -57,26 +57,4 @@ describe Cae::MultipartParser::Part do
       part.content_length.must_equal 100
     end
   end
-
-  describe "#callback" do
-    it "ignores an unregistered callback type" do
-      part.callback(:unregistered).must_equal nil
-    end
-
-    it "calls a registered callback type" do
-      foo = 0
-      cb = ->(arg){ foo = arg }
-      part.on(:registered, &cb)
-      part.callback(:registered, 1)
-      foo.must_equal 1
-    end
-
-    it "defaults to a nil arg" do
-      foo = true
-      cb = ->(arg){ foo = arg }
-      part.on(:registered, &cb)
-      part.callback(:registered)
-      foo.must_equal nil
-    end
-  end
 end
